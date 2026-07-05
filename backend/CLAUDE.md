@@ -40,6 +40,7 @@ tests/
 4. **Commit** when a logical unit is complete with a descriptive message.
 5. **Push** to the feature branch — the auto-push hook handles this (`.claude/settings.json`).
 6. **Open a PR** to merge into `main` once the branch is ready.
+7. **PR must be merged before starting the next phase** — never begin a new phase on an unmerged branch.
 
 ### Branch naming convention
 | Prefix | Use |
@@ -99,7 +100,7 @@ make typecheck   # mypy app/
 | 2 | Core (config, database, exceptions, lifespan) | ✅ |
 | 3 | Domain models & schemas | ✅ |
 | 4 | Repositories (base + wire / connector / drawing) | ✅ |
-| 5 | Services (business logic, validation) + unit tests | 🔲 |
+| 5 | Services (business logic, validation) + unit tests | ✅ |
 | 6 | API Endpoints + router registration + integration tests | 🔲 |
 | 7 | Full test suite (conftest, wire / connector / drawing) | 🔲 |
 | 8 | Docker & local dev (docker-compose, Makefile) | ✅ |
@@ -110,3 +111,4 @@ make typecheck   # mypy app/
 
 - Endpoint specification → [`docs/api-spec.md`](docs/api-spec.md)
 - Domain business rules → [`docs/domain-rules.md`](docs/domain-rules.md)
+- Phase changelog → [`docs/CHANGELOG.md`](docs/CHANGELOG.md)

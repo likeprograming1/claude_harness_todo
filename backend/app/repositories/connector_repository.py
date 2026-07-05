@@ -32,6 +32,10 @@ class ConnectorRepository(BaseRepository[ConnectorModel]):
         d.pop("mongo_id", None)
         return d
 
+    async def list_all(self) -> list[ConnectorModel]:
+        cursor = self._col().find({})
+        return [self._doc_to_model(doc) async for doc in cursor]
+
     async def get_by_id(self, connector_id: str) -> ConnectorModel | None:
         doc = await self._col().find_one({"connector_id": connector_id})
         return self._doc_to_model(doc) if doc is not None else None
