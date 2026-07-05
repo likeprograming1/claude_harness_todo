@@ -30,6 +30,10 @@ class WireRepository(BaseRepository[WireModel]):
         d.pop("mongo_id", None)
         return d
 
+    async def list_all(self) -> list[WireModel]:
+        cursor = self._col().find({})
+        return [self._doc_to_model(doc) async for doc in cursor]
+
     async def get_by_id(self, wire_id: str) -> WireModel | None:
         doc = await self._col().find_one({"wire_id": wire_id})
         return self._doc_to_model(doc) if doc is not None else None
