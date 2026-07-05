@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /c/Develop/claude_exam/claude_harness_todo/backend && branch=$(git branch --show-current 2>/dev/null) && [ -n \"$branch\" ] && [ \"$branch\" != \"main\" ] && [ \"$branch\" != \"master\" ] && git push -u origin \"$branch\" --quiet 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
