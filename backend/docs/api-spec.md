@@ -1,137 +1,150 @@
-# API Specification — Harness Engineering API
+# API Specification — Todo List API
 
 Base path: `/api/v1`
 Content-Type: `application/json`
 
 ---
 
-## Wire — `/api/v1/wires`
+## Task — `/api/v1/tasks`
 
-### `GET /wires`
-Returns the full list of wires.
+### `GET /tasks`
+할 일 목록 조회. 쿼리 파라미터로 필터링.
+
+**Query params**
+| param | type | description |
+|-------|------|-------------|
+| `date` | `YYYY-MM-DD` | 해당 날짜의 due_date 필터 |
+| `category_id` | string | 카테고리 필터 |
+| `done` | bool | 완료 여부 필터 |
+| `priority` | `low\|medium\|high` | 우선순위 필터 |
 
 **Response 200**
 ```json
 [{
   "id": "64abc...",
-  "wire_id": "W001",
-  "gauge_awg": 14,
-  "material": "copper",
-  "color": "red",
-  "length_mm": 500.0,
-  "insulation_rating_v": 600.0,
-  "max_current_a": 15.0
+  "task_id": "T001",
+  "title": "디자인 시스템 문서 검토",
+  "due_date": "2024-10-24",
+  "due_time": "09:00",
+  "category_id": "업무",
+  "priority": "high",
+  "is_done": false,
+  "notes": null,
+  "created_at": "2024-10-23T10:00:00"
 }]
 ```
 
-### `GET /wires/{wire_id}`
-**Response 200** — WireResponse
-**Response 404** — `{ "detail": "Wire 'W001' not found" }`
+### `POST /tasks`
+새 할 일 생성.
 
-### `POST /wires`
-Create a new wire.
+**Request body** — TaskCreate
+**Response 201** — TaskResponse
+**Response 409** — Duplicate `task_id`
+**Response 422** — title 없음, due_time without due_date, 존재하지 않는 category_id
 
-**Request body** — WireCreate
-**Response 201** — WireResponse
-**Response 409** — Duplicate `wire_id`
-**Response 422** — Invalid AWG gauge or `insulation_rating_v <= 0`
+### `GET /tasks/{task_id}`
+**Response 200** — TaskResponse
+**Response 404** — task_id not found
 
-### `PUT /wires/{wire_id}`
-Partial update — only provided fields are changed.
+### `PUT /tasks/{task_id}`
+할 일 전체 수정 (제공된 필드만 변경).
 
-**Request body** — WireUpdate
-**Response 200** — WireResponse
-**Response 404** — `wire_id` not found
+**Request body** — TaskUpdate
+**Response 200** — TaskResponse
+**Response 404** — task_id not found
+**Response 422** — due_time without due_date, 존재하지 않는 category_id
 
-### `DELETE /wires/{wire_id}`
-**Response 204** — Deleted (no body)
-**Response 404** — `wire_id` not found
-**Response 409** — Wire is referenced by one or more harness drawings
+### `DELETE /tasks/{task_id}`
+**Response 204** — Deleted
+**Response 404** — task_id not found
+
+### `PATCH /tasks/{task_id}/done`
+완료 상태 토글 (done ↔ not done).
+
+**Response 200** — TaskResponse
+**Response 404** — task_id not found
 
 ---
 
-## Connector — `/api/v1/connectors`
+## Category — `/api/v1/categories`
 
-### `GET /connectors`
-**Response 200** — `list[ConnectorResponse]`
+### `GET /categories`
+**Response 200** — `list[CategoryResponse]`
+기본 카테고리(업무·개인·긴급·집중) + 커스텀 카테고리 모두 반환.
 
-### `GET /connectors/{connector_id}`
-**Response 200** — ConnectorResponse
-**Response 404**
+### `POST /categories`
+커스텀 카테고리 생성.
 
-### `POST /connectors`
-**Request body** — ConnectorCreate
-**Response 201** — ConnectorResponse
-**Response 409** — Duplicate `connector_id`
-**Response 422** — `pin_count <= 0`
+**Request body** — CategoryCreate
+**Response 201** — CategoryResponse
+**Response 409** — Duplicate name
 
-### `PUT /connectors/{connector_id}`
-**Request body** — ConnectorUpdate
-**Response 200** — ConnectorResponse
-**Response 404**
+### `DELETE /categories/{category_id}`
+**Response 204** — Deleted
+**Response 404** — category_id not found
+**Response 409** — 기본 카테고리는 삭제 불가
 
-### `DELETE /connectors/{connector_id}`
-**Response 204** — Deleted (no body)
-**Response 404**
+---
 
-### `POST /connectors/{a_id}/mate/{b_id}`
-Link two connectors as a symmetric mating pair (A→B and B→A set simultaneously).
+## Stats — `/api/v1/stats`
+
+### `GET /stats/dashboard`
+대시보드 집계 데이터.
 
 **Response 200**
 ```json
 {
-  "a": { ...ConnectorResponse },
-  "b": { ...ConnectorResponse }
+  "today": "2024-10-24",
+  "total_today": 5,
+  "completed_today": 3,
+  "completion_rate": 60.0,
+  "focus_score": 84,
+  "priority_tasks": [ ...TaskResponse x3 ],
+  "upcoming": [ ...TaskResponse (오늘 이후 due_date 순) ]
 }
 ```
-**Response 404** — `a_id` or `b_id` not found
-**Response 409** — Either connector is already mated to a different connector
-**Response 422** — `a_id == b_id` (self-mating not allowed)
+
+### `GET /stats/weekly`
+최근 7일간 일별 완료/전체 태스크 수.
+
+**Response 200**
+```json
+{
+  "days": [
+    { "date": "2024-10-18", "total": 4, "completed": 3 },
+    ...
+  ]
+}
+```
+
+### `GET /stats/insights`
+스마트 인사이트 — 완료 시각 분포 기반 생산성 피크 시간대.
+
+**Response 200**
+```json
+{
+  "peak_start": "09:00",
+  "peak_end": "11:30",
+  "message": "오전 9:00~11:30 사이에 가장 생산적입니다."
+}
+```
 
 ---
 
-## Harness Drawing — `/api/v1/harness/drawings`
+## Milestone — `/api/v1/milestones`
 
-### `GET /harness/drawings`
-**Response 200** — `list[HarnessDrawingResponse]`
+### `GET /milestones`
+달성된 마일스톤 목록 (최신순).
 
-### `GET /harness/drawings/{drawing_id}`
-**Response 200** — HarnessDrawingResponse
-**Response 404**
-
-### `POST /harness/drawings`
-**Request body** — HarnessDrawingCreate
-**Response 201** — HarnessDrawingResponse
-**Response 409** — Duplicate `drawing_id`
-**Response 422** — Invalid revision format, duplicate `circuit_id`, referential integrity violation
-
-### `PUT /harness/drawings/{drawing_id}`
-If `revision` is omitted, the current revision letter is auto-bumped (e.g. `Rev.A` → `Rev.B`).
-
-**Request body** — HarnessDrawingUpdate
-**Response 200** — HarnessDrawingResponse
-**Response 404**
-**Response 422** — Referential integrity violation, or revision is already `Rev.Z` (cannot bump further)
-
-### `DELETE /harness/drawings/{drawing_id}`
-**Response 204** — Deleted (no body)
-**Response 404**
-
-### `POST /harness/drawings/{drawing_id}/validate`
-Full validation of a drawing — non-destructive, no DB writes.
-
-**Response 200** — ValidationReport (always 200; check `valid` field for result)
-
+**Response 200**
 ```json
-{ "drawing_id": "D001", "valid": true, "errors": [], "warnings": [] }
-```
-```json
-{
-  "drawing_id": "D001",
-  "valid": false,
-  "errors": ["Circuit C3: from_connector_pin 5 exceeds J2 pin_count 4"],
-  "warnings": []
-}
+[{
+  "id": "64abc...",
+  "milestone_id": "M001",
+  "title": "딥 포커스 스트릭",
+  "description": "3일 연속으로 5시간 이상의 집중 업무를 완료했습니다.",
+  "achieved_at": "2024-10-24"
+}]
 ```
 
 ---
@@ -149,4 +162,4 @@ Full validation of a drawing — non-destructive, no DB writes.
 |--------|---------|---------|
 | 422 | Unprocessable Entity | Pydantic validation failure, business rule violation |
 | 404 | Not Found | Entity does not exist |
-| 409 | Conflict | Duplicate creation, deletion blocked by reference |
+| 409 | Conflict | Duplicate creation, default category deletion blocked |

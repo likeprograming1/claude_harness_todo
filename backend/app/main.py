@@ -8,14 +8,14 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.database import close_db, connect_db, ensure_indexes
 from app.core.exceptions import (
+    AppValidationError,
     DuplicateEntityError,
     EntityInUseError,
     EntityNotFoundError,
-    HarnessValidationError,
+    app_validation_handler,
     duplicate_entity_handler,
     entity_in_use_handler,
     entity_not_found_handler,
-    harness_validation_handler,
 )
 
 
@@ -40,7 +40,7 @@ app.add_middleware(
 app.add_exception_handler(EntityNotFoundError, entity_not_found_handler)  # type: ignore[arg-type]
 app.add_exception_handler(DuplicateEntityError, duplicate_entity_handler)  # type: ignore[arg-type]
 app.add_exception_handler(EntityInUseError, entity_in_use_handler)  # type: ignore[arg-type]
-app.add_exception_handler(HarnessValidationError, harness_validation_handler)  # type: ignore[arg-type]
+app.add_exception_handler(AppValidationError, app_validation_handler)  # type: ignore[arg-type]
 
 app.include_router(api_router, prefix="/api/v1")
 

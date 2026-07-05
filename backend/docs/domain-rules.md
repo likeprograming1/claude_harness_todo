@@ -1,98 +1,91 @@
-# Harness Engineering — Domain Rules
-
-## Wire
-
-### AWG Gauge
-- Valid gauges (16 values): `0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30`
-- Any value outside this set → 422 Unprocessable Entity
-- When `gauge_awg` changes, `max_current_a` must be recomputed from the SAE ampacity table and persisted
-
-### SAE Chassis-Wiring Ampacity Table
-| AWG | max_current_a |
-|-----|--------------|
-| 0   | 245.0 A      |
-| 2   | 185.0 A      |
-| 4   | 125.0 A      |
-| 6   | 80.0 A       |
-| 8   | 55.0 A       |
-| 10  | 30.0 A       |
-| 12  | 20.0 A       |
-| 14  | 15.0 A       |
-| 16  | 13.0 A       |
-| 18  | 10.0 A       |
-| 20  | 5.0 A        |
-| 22  | 3.0 A        |
-| 24  | 2.0 A        |
-| 26  | 1.0 A        |
-| 28  | 0.5 A        |
-| 30  | 0.3 A        |
-
-### Insulation Voltage Rating
-- `insulation_rating_v > 0` required (422 if violated)
-- Values below 12 V emit a `logger.warning` — they are accepted, not rejected
-
-### Wire Material
-- Allowed values: `copper`, `aluminum`, `copper_clad_aluminum`
-
-### Wire Deletion Constraint
-- A wire referenced in any `HarnessDrawing.wire_ids` cannot be deleted → 409 Conflict
+# Domain Rules — Todo List API
 
 ---
 
-## Connector
+## Task
 
-### Pin Count
-- `pin_count > 0` required (422 if violated)
+### task_id
+- 클라이언트가 직접 제공하거나 서버가 자동 생성 (UUID4 단축형)
+- 컬렉션 내 유일해야 함 → 중복 시 409
 
-### Gender
-- Allowed values: `male`, `female`, `neutral`
+### title
+- 필수, 1~200자
 
-### Waterproof Status
-- Allowed values: `not_waterproof`, `IP54`, `IP67`, `IP68`
-- Default: `not_waterproof`
+### due_date / due_time
+- `due_date`: 선택, `YYYY-MM-DD` 형식
+- `due_time`: 선택, `HH:MM` 형식 (24시간)
+- **due_time은 due_date 없이 단독 사용 불가 → 422**
 
-### Mating Connector (symmetric link)
-- `POST /connectors/{a_id}/mate/{b_id}` sets A→B and B→A simultaneously in a single atomic update
-- If either connector is already mated to a different connector → 409 Conflict
-- `a_id == b_id` (self-mating) → 422
+### priority
+- 허용 값: `low`, `medium`, `high`
+- 기본값: `medium`
 
----
+### category_id
+- 선택 필드
+- 제공 시 `categories` 컬렉션에 존재해야 함 → 없으면 422
 
-## Harness Drawing
+### is_done
+- 기본값: `false`
+- `PATCH /tasks/{task_id}/done` 으로만 토글
 
-### Revision Format
-- Pattern: `^Rev\.[A-Z]$` (examples: `Rev.A`, `Rev.B`, …, `Rev.Z`)
-- Format violation → 422
-- On `PUT` without an explicit revision, the current letter is auto-bumped one step (e.g. `Rev.A` → `Rev.B`); bumping past `Rev.Z` → 422
-
-### Duplicate circuit_id
-- `circuit_id` values must be unique within a drawing
-- Enforced at the schema level (`model_validator`) → 422
-
-### Referential Integrity
-All of the following IDs must exist in the database before a drawing is saved or updated:
-
-| Field | Must exist in |
-|-------|--------------|
-| `wire_ids[]` | `wires` collection |
-| `connector_ids[]` | `connectors` collection |
-| `circuit.wire_id` | `wires` collection |
-| `circuit.from_connector_id` | `connectors` collection |
-| `circuit.to_connector_id` | `connectors` collection |
-
-Violation → `HarnessValidationError` (422)
+### created_at
+- 서버가 자동 부여 (UTC), 클라이언트 제공 불가
 
 ---
 
-## Validation Report (`POST /harness/drawings/{id}/validate`)
+## Category
 
-`ValidationReport` fields: `drawing_id`, `valid: bool`, `errors: list[str]`, `warnings: list[str]`
+### 기본 카테고리 (앱 시작 시 seed)
+| category_id | name | color |
+|-------------|------|-------|
+| `cat_work` | 업무 | `#4A6FFF` |
+| `cat_personal` | 개인 | `#FF6B6B` |
+| `cat_urgent` | 긴급 | `#FF9500` |
+| `cat_focus` | 집중 | `#34C759` |
 
-### Validation checks (in order)
-1. **Reference existence** — every `wire_id` and `connector_id` referenced in the drawing (top-level lists and inside circuits) exists in the DB
-2. **Pin number bounds** — `from_connector_pin` and `to_connector_pin` of each circuit are within `1..connector.pin_count` (1-indexed)
-3. **Duplicate circuit_id** — no two circuits in the drawing share the same `circuit_id`
-4. **Duplicate pin assignment** — no two circuits connect to the same pin of the same connector (e.g. two circuits both using J1 pin 3 is invalid)
+- 기본 카테고리는 **삭제 불가** → 409
 
-All checks pass → `{ "valid": true, "errors": [], "warnings": [] }`
-Any check fails → `{ "valid": false, "errors": ["..."] }`
+### 커스텀 카테고리
+- name: 1~50자, 컬렉션 내 유일 → 중복 시 409
+- color: 유효한 hex 코드 (`#RRGGBB` 형식), 기본값 `#888888`
+
+---
+
+## Stats
+
+### focus_score (집중도 점수, 0~100)
+- 오늘 완료한 태스크 수 / 오늘 전체 태스크 수 × 100 (정수)
+- 태스크가 없으면 0
+
+### completion_rate (완료율, %)
+- 오늘 completed / 오늘 total × 100 (소수점 1자리)
+
+### priority_tasks (우선순위 할 일)
+- 오늘 미완료 태스크 중 priority=high → medium → low 순, 최대 3개
+
+### weekly stats
+- 오늘 기준 -6일 ~ 오늘 총 7일
+- 날짜별 total / completed 집계
+
+### insights (스마트 인사이트)
+- 과거 30일 완료 태스크의 `completed_at` 시각 분포 분석
+- 완료가 가장 많이 몰린 2시간 구간 → `peak_start` / `peak_end`
+- 데이터 부족(완료 태스크 < 5개) 시 기본 메시지 반환
+
+---
+
+## Milestone
+
+- 자동 생성 — API로 직접 생성/수정/삭제 불가 (GET 전용)
+- 서비스 계층이 태스크 완료 이벤트 후 조건 평가하여 자동 발급
+
+### 달성 조건
+| milestone_id | 조건 |
+|--------------|------|
+| `streak_3` | 3일 연속 1개 이상 태스크 완료 |
+| `streak_7` | 7일 연속 1개 이상 태스크 완료 |
+| `total_10` | 누적 완료 태스크 10개 이상 |
+| `total_50` | 누적 완료 태스크 50개 이상 |
+| `focus_5` | 하루 집중(category=집중) 태스크 5개 이상 완료 |
+
+- 같은 마일스톤은 **최초 달성 시 1회만** 발급

@@ -1,37 +1,25 @@
 # Changelog
 
-Phase별 완료 기록과 주요 변경 사항을 여기에 추가합니다.  
+Phase별 완료 기록과 주요 변경 사항.
 형식: `## [Phase N] YYYY-MM-DD` → 완료 항목 나열
 
 ---
 
-## [Phase 5] 2026-07-05
+## [Redesign] 2026-07-05
 
-**Services + Unit Tests** — `feat/phase-5-services`
+**도메인 전환: Harness Engineering → Todo List API**
 
-- `app/services/wire_service.py` — WireService (CRUD + delete 시 참조 도면 충돌 검사)
-- `app/services/connector_service.py` — ConnectorService (CRUD + delete 시 참조 도면 충돌 검사)
-- `app/services/harness_drawing_service.py` — HarnessDrawingService (CRUD + 개정 자동 증가 + validate_drawing)
-- `tests/unit/test_wire_service.py`
-- `tests/unit/test_connector_service.py`
-- `tests/unit/test_harness_drawing_service.py`
-- 단위 테스트 **24/24 pass**
-
----
-
-## [Infra] 2026-07-05
-
-**MongoDB 로컬 Docker 연결 설정**
-
-- `.env`, `.env.example`, `app/core/config.py` 기본값을 `mongodb://127.0.0.1:27017`으로 통일
-- 배포 전까지 Atlas URI 제외, 로컬 Docker 컨테이너 기준으로 개발
+- 기존 하네스 엔지니어링 도메인 코드 전체 제거
+- UI 목업(대시보드, 할 일 목록, 데일리 플랜, 새 할 일) 기반으로 재설계
+- `docs/api-spec.md` 전면 재작성 (Task / Category / Stats / Milestone)
+- `docs/domain-rules.md` 전면 재작성
+- `CLAUDE.md` 업데이트 (Phase 3~7 리셋)
+- Core 인프라 유지 (Phase 1, 2, 8)
 
 ---
 
-## [Phase 1–4] (초기 구축)
+## [Phase 1–2, 8] (기존 인프라 — 재사용)
 
 - Phase 1: 프로젝트 초기화 (requirements, .env, pyproject.toml)
 - Phase 2: Core 레이어 (config, database, exceptions, lifespan)
-- Phase 3: Domain models & Pydantic v2 schemas
-- Phase 4: Repositories (BaseRepository + wire / connector / harness_drawing)
 - Phase 8: Docker & local dev (docker-compose, Makefile)

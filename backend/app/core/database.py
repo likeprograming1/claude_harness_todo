@@ -31,9 +31,11 @@ def get_db() -> AsyncIOMotorDatabase[dict[str, Any]]:
 
 async def ensure_indexes() -> None:
     db = get_db()
-    await db["wires"].create_index("wire_id", unique=True)
-    await db["connectors"].create_index("connector_id", unique=True)
-    await db["harness_drawings"].create_index("drawing_id", unique=True)
-    await db["harness_drawings"].create_index("wire_ids")
-    await db["harness_drawings"].create_index("connector_ids")
+    await db["tasks"].create_index("task_id", unique=True)
+    await db["tasks"].create_index("due_date")
+    await db["tasks"].create_index("category_id")
+    await db["tasks"].create_index("is_done")
+    await db["categories"].create_index("category_id", unique=True)
+    await db["categories"].create_index("name", unique=True)
+    await db["milestones"].create_index("milestone_id", unique=True)
     logger.info("MongoDB indexes ensured")
