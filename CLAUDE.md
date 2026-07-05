@@ -1,6 +1,6 @@
 # claude_harness_todo
 
-Full-stack Harness Engineering application.
+Full-stack Todo List application.
 
 ## Structure
 
