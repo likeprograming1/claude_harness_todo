@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
-from app.core.database import close_db, connect_db, ensure_indexes
+from app.core.database import close_db, connect_db, ensure_indexes, seed_categories
 from app.core.exceptions import (
     AppValidationError,
     DuplicateEntityError,
@@ -23,6 +23,7 @@ from app.core.exceptions import (
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await connect_db()
     await ensure_indexes()
+    await seed_categories()
     yield
     await close_db()
 

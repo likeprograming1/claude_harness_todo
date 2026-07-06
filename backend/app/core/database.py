@@ -39,3 +39,9 @@ async def ensure_indexes() -> None:
     await db["categories"].create_index("name", unique=True)
     await db["milestones"].create_index("milestone_id", unique=True)
     logger.info("MongoDB indexes ensured")
+
+
+async def seed_categories() -> None:
+    from app.repositories.category_repository import CategoryRepository
+    await CategoryRepository().seed_defaults()
+    logger.info("Default categories seeded")
