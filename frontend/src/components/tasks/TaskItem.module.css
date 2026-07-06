@@ -1,0 +1,52 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.item.done {
+  opacity: 0.5;
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-text-tertiary);
+  background: var(--color-surface);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.checkbox.checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.title {
+  flex: 1;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-primary);
+}
+
+.item.done .title {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.badge {
+  font-size: 12px;
+  line-height: 16px;
+  padding: 2px 8px;
+  border-radius: var(--radius-chip);
+  background: color-mix(in srgb, var(--badge-color) 15%, transparent);
+  color: var(--badge-color);
+  white-space: nowrap;
+  flex-shrink: 0;
+}

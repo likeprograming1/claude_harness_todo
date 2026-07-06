@@ -1,0 +1,87 @@
+:root {
+  /* Primary */
+  --color-primary:       #1b3fdb;
+  --color-primary-dark:  #3e5cf4;
+  --color-primary-light: #eff4ff;
+  --color-primary-bg:    #e5eeff;
+
+  /* Background */
+  --color-bg:      #f8f9ff;
+  --color-surface: #ffffff;
+
+  /* Text */
+  --color-text-primary:   #0b1c30;
+  --color-text-secondary: #5c5f61;
+  --color-text-tertiary:  #757687;
+  --color-text-muted:     #444655;
+
+  /* Border */
+  --color-border:        rgba(196, 197, 216, 0.3);
+  --color-border-subtle: rgba(196, 197, 216, 0.1);
+
+  /* Category badges */
+  --color-badge-work-bg:       rgba(27, 63, 219, 0.1);
+  --color-badge-work-text:     #1b3fdb;
+  --color-badge-personal-bg:   rgba(255, 219, 205, 0.4);
+  --color-badge-personal-text: #7d2d00;
+  --color-badge-neutral-bg:    #e0e3e5;
+  --color-badge-neutral-text:  #5c5f61;
+
+  /* UI elements */
+  --color-inactive:      #e0e3e5;
+  --color-inactive-text: #c4c7c9;
+
+  /* Spacing */
+  --spacing-page-h: 16px;
+  --spacing-card:   24px;
+  --radius-card:    12px;
+  --radius-input:   8px;
+  --radius-chip:    9999px;
+
+  /* Shadows */
+  --shadow-card: 0px 1px 1px rgba(0, 0, 0, 0.05);
+  --shadow-fab:
+    0px 10px 15px -3px rgba(27, 63, 219, 0.2),
+    0px 4px 6px -4px rgba(27, 63, 219, 0.2);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: 'WenQuanYi Zen Hei', 'Noto Sans KR', 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+}
+
+input,
+textarea {
+  font: inherit;
+}
