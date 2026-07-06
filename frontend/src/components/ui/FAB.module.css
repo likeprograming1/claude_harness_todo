@@ -1,0 +1,19 @@
+.fab {
+  position: fixed;
+  bottom: calc(72px + 16px + env(safe-area-inset-bottom, 0px));
+  right: max(16px, calc(50vw - 240px + 16px));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-fab);
+  z-index: 9;
+  transition: background 0.15s;
+}
+
+.fab:hover {
+  background: var(--color-primary-dark);
+}
