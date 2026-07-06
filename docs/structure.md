@@ -58,14 +58,16 @@ src/
 
 ## 개발 Phase 계획
 
-| Phase | 내용 | 브랜치 |
-|-------|------|-------|
-| 1 | 디자인 토큰 + 공통 컴포넌트 (Layout, BottomNav, TaskItem) | `feat/phase-1-base` |
-| 2 | API client + 타입 정의 + 대시보드 | `feat/phase-2-dashboard` |
-| 3 | 할 일 목록 + 완료 토글 + FAB | `feat/phase-3-tasklist` |
-| 4 | 할 일 추가 폼 + 유효성 검사 | `feat/phase-4-add-task` |
-| 5 | 통계 페이지 (차트 + 마일스톤 + 인사이트) | `feat/phase-5-stats` |
-| 6 | 테스트 작성 + 마무리 | `feat/phase-6-tests` |
+각 Phase는 `main` 에서 브랜치를 따고, 완료 후 GitHub PR → `main` 머지.
+
+| Phase | 내용 | 브랜치 | PR |
+|-------|------|-------|----|
+| 1 | 디자인 토큰 + 공통 컴포넌트 (Layout, BottomNav, TaskItem) | `feat/phase-1-base` | ✅ |
+| 2 | API client + 타입 정의 + 대시보드 | `feat/phase-2-dashboard` | ✅ |
+| 3 | 할 일 목록 + 완료 토글 + FAB | `feat/phase-3-tasklist` | 진행 중 |
+| 4 | 할 일 추가 폼 + 유효성 검사 | `feat/phase-4-add-task` | - |
+| 5 | 통계 페이지 (차트 + 마일스톤 + 인사이트) | `feat/phase-5-stats` | - |
+| 6 | 테스트 작성 + 마무리 | `feat/phase-6-tests` | - |
 
 ## 테스트 정책
 
