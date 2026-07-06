@@ -1,0 +1,7 @@
+.list {}
+
+.empty {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+  padding: 16px 0;
+}
