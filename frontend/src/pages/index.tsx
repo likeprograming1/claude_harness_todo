@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import { getDashboard } from '@/lib/api/stats'
-import { toggleDone } from '@/lib/api/tasks'
-import type { DashboardStats } from '@/lib/types'
+import { getTasks, toggleDone } from '@/lib/api/tasks'
+import type { DashboardStats, Task } from '@/lib/types'
 import { ProgressCard } from '@/components/dashboard/ProgressCard'
 import { FocusSessionCard } from '@/components/dashboard/FocusSessionCard'
 import { UpcomingList } from '@/components/dashboard/UpcomingList'
 import { TaskItem } from '@/components/tasks/TaskItem'
+import { FAB } from '@/components/ui/FAB'
 import styles from './index.module.css'
 
 const GREETINGS = [
@@ -26,26 +27,33 @@ function formatDate(dateStr: string) {
   return d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
 }
 
+function toLocalDateStr(date: Date) {
+  return date.toISOString().slice(0, 10)
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [allTasks, setAllTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const today = toLocalDateStr(new Date())
+
   const load = useCallback(async () => {
     try {
-      const data = await getDashboard()
+      const [data, tasks] = await Promise.all([getDashboard(), getTasks()])
       setStats(data)
+      setAllTasks(tasks.filter((t) => !t.due_date || t.due_date === today))
     } catch {
       setError('데이터를 불러오지 못했습니다.')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [today])
 
   useEffect(() => { load() }, [load])
 
   const handleToggle = async (taskId: string) => {
-    if (!stats) return
     try {
       const updated = await toggleDone(taskId)
       setStats((prev) => {
@@ -55,6 +63,7 @@ export default function DashboardPage() {
           priority_tasks: prev.priority_tasks.map((t) => t.task_id === taskId ? updated : t),
         }
       })
+      setAllTasks((prev) => prev.map((t) => t.task_id === taskId ? updated : t))
     } catch {
       // 토글 실패 시 무시
     }
@@ -82,23 +91,28 @@ export default function DashboardPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>우선순위 할 일</h2>
-        {stats.priority_tasks.length === 0 ? (
-          <p className={styles.empty}>오늘 할 일이 없습니다.</p>
-        ) : (
-          <div className={styles.taskList}>
-            {stats.priority_tasks.slice(0, 3).map((task) => (
-              <TaskItem
-                key={task.id}
-                id={task.task_id}
-                title={task.title}
-                is_done={task.is_done}
-                priority={task.priority}
-                onToggle={handleToggle}
-              />
-            ))}
-          </div>
-        )}
+        <h2 className={styles.sectionTitle}>오늘 할 일</h2>
+        {(() => {
+          const displayTasks = stats.priority_tasks.length > 0
+            ? stats.priority_tasks.slice(0, 3)
+            : allTasks.slice(0, 3)
+          return displayTasks.length === 0 ? (
+            <p className={styles.empty}>오늘 할 일이 없습니다.</p>
+          ) : (
+            <div className={styles.taskList}>
+              {displayTasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  id={task.task_id}
+                  title={task.title}
+                  is_done={task.is_done}
+                  priority={task.priority}
+                  onToggle={handleToggle}
+                />
+              ))}
+            </div>
+          )
+        })()}
       </section>
 
       {stats.upcoming.length > 0 && (
@@ -107,6 +121,8 @@ export default function DashboardPage() {
           <UpcomingList tasks={stats.upcoming} />
         </section>
       )}
+
+      <FAB href="/tasks" label="할 일 목록으로" />
     </div>
   )
 }

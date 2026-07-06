@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-fab);
-  z-index: 9;
+  z-index: 11;
   transition: background 0.15s;
 }
 
