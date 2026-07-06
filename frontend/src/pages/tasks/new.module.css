@@ -1,0 +1,211 @@
+.form {
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Title */
+.titleInput {
+  width: 100%;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  padding: 8px 0;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.titleInput:focus {
+  border-bottom-color: var(--color-primary);
+}
+
+.titleInput.inputError {
+  border-bottom-color: #FF3B30;
+}
+
+.titleInput::placeholder {
+  color: var(--color-inactive-text);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* Row (date / time) */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rowLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  min-width: 60px;
+  cursor: default;
+}
+
+.dateInput {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.dateInput:focus {
+  border-color: var(--color-primary);
+}
+
+.dateInput:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* Chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Priority chips */
+.priorityChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-chip);
+  font-size: 14px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.priorityChip.prioritySelected {
+  border-color: var(--chip-color);
+  color: var(--chip-color);
+  background: color-mix(in srgb, var(--chip-color) 10%, transparent);
+  font-weight: 500;
+}
+
+.priorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--chip-color, var(--color-text-tertiary));
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.textarea::placeholder {
+  color: var(--color-inactive-text);
+}
+
+/* Errors */
+.errorMsg {
+  font-size: 12px;
+  color: #FF3B30;
+  margin-top: -4px;
+}
+
+.serverError {
+  font-size: 13px;
+  color: #FF3B30;
+  padding: 10px 12px;
+  background: rgba(255, 59, 48, 0.08);
+  border-radius: var(--radius-input);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+  padding-bottom: 16px;
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius-input);
+  font-size: 16px;
+  font-weight: 500;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.cancelBtn:hover {
+  border-color: var(--color-text-secondary);
+}
+
+.submitBtn {
+  flex: 2;
+  padding: 14px;
+  border-radius: var(--radius-input);
+  font-size: 16px;
+  font-weight: 500;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  box-shadow: var(--shadow-fab);
+  transition: background 0.15s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
