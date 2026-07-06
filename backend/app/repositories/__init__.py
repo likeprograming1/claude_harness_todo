@@ -1,5 +1,5 @@
-from app.repositories.connector_repository import ConnectorRepository
-from app.repositories.harness_drawing_repository import HarnessDrawingRepository
-from app.repositories.wire_repository import WireRepository
+from app.repositories.category_repository import CategoryRepository
+from app.repositories.milestone_repository import MilestoneRepository
+from app.repositories.task_repository import TaskRepository
 
-__all__ = ["WireRepository", "ConnectorRepository", "HarnessDrawingRepository"]
+__all__ = ['TaskRepository', 'CategoryRepository', 'MilestoneRepository']
