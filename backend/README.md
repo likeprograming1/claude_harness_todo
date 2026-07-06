@@ -85,8 +85,9 @@ claude_harness_todo/
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+py -m venv .venv
+source .venv/Scripts/activate    # Git Bash / Windows
+# PowerShell: .venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
 ```
 
