@@ -65,7 +65,7 @@ src/
 | 1 | 디자인 토큰 + 공통 컴포넌트 (Layout, BottomNav, TaskItem) | `feat/phase-1-base` | ✅ |
 | 2 | API client + 타입 정의 + 대시보드 | `feat/phase-2-dashboard` | ✅ |
 | 3 | 할 일 목록 + 완료 토글 + FAB | `feat/phase-3-tasklist` | ✅ |
-| 4 | 할 일 추가 폼 + 유효성 검사 | `feat/phase-4-add-task` | - |
+| 4 | 할 일 추가 폼 + 유효성 검사 | `feat/phase-4-add-task` | ✅ |
 | 5 | 통계 페이지 (차트 + 마일스톤 + 인사이트) | `feat/phase-5-stats` | - |
 | 6 | 테스트 작성 + 마무리 | `feat/phase-6-tests` | - |
 
