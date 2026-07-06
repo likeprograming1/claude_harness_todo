@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Link from 'next/link'
 import styles from './TopAppBar.module.css'
 
 interface TopAppBarProps {
@@ -12,7 +13,7 @@ export function TopAppBar({ title, right }: TopAppBarProps) {
       <button className={styles.hamburger} aria-label="메뉴">
         <HamburgerIcon />
       </button>
-      <span className={styles.title}>{title}</span>
+      <Link href="/" className={styles.title}>{title}</Link>
       <div className={styles.right}>{right ?? <Avatar />}</div>
     </header>
   )

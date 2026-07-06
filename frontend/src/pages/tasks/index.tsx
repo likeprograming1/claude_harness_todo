@@ -36,11 +36,10 @@ export default function TasksPage() {
 
   const load = useCallback(async () => {
     try {
-      const [todayData, allData] = await Promise.all([
-        getTasks({ date: today }),
-        getTasks(),
-      ])
-      setTodayTasks(todayData)
+      const allData = await getTasks()
+      setTodayTasks(
+        allData.filter((t) => !t.due_date || t.due_date === today)
+      )
       setUpcomingTasks(
         allData.filter((t) => t.due_date && t.due_date > today)
       )
@@ -68,9 +67,6 @@ export default function TasksPage() {
   const totalToday = todayTasks.length
   const completedToday = todayTasks.filter((t) => t.is_done).length
 
-  if (loading) return <div className={styles.state}>불러오는 중…</div>
-  if (error) return <div className={styles.state}>{error}</div>
-
   const upcomingByDate = groupByDate(upcomingTasks)
   const upcomingDates = Object.keys(upcomingByDate).sort()
 
@@ -80,11 +76,15 @@ export default function TasksPage() {
       <section className={styles.welcome}>
         <p className={styles.greeting}>안녕하세요!</p>
         <p className={styles.sub}>
-          {completedToday < totalToday
-            ? `오늘 집중해야 할 일이 ${totalToday - completedToday}개 있습니다.`
-            : totalToday > 0
-              ? '오늘 할 일을 모두 완료했습니다! 🎉'
-              : '오늘 할 일이 없습니다.'}
+          {loading
+            ? '불러오는 중…'
+            : error
+              ? '할 일을 불러오지 못했습니다.'
+              : completedToday < totalToday
+                ? `오늘 집중해야 할 일이 ${totalToday - completedToday}개 있습니다.`
+                : totalToday > 0
+                  ? '오늘 할 일을 모두 완료했습니다!'
+                  : '오늘 할 일이 없습니다.'}
         </p>
       </section>
 
@@ -92,25 +92,29 @@ export default function TasksPage() {
       <AddTaskInput />
 
       {/* 오늘 섹션 */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>오늘</h2>
-          <span className={styles.badge}>{totalToday}</span>
-        </div>
-        <TaskList tasks={todayTasks} onToggle={handleToggle} />
-      </section>
-
-      {/* 예정 섹션 */}
-      {upcomingDates.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>예정</h2>
-          {upcomingDates.map((date) => (
-            <div key={date} className={styles.dateGroup}>
-              <div className={styles.dateBadge}>{formatSectionDate(date)}</div>
-              <TaskList tasks={upcomingByDate[date]} onToggle={handleToggle} />
+      {!loading && !error && (
+        <>
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>오늘</h2>
+              <span className={styles.badge}>{totalToday}</span>
             </div>
-          ))}
-        </section>
+            <TaskList tasks={todayTasks} onToggle={handleToggle} />
+          </section>
+
+          {/* 예정 섹션 */}
+          {upcomingDates.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>예정</h2>
+              {upcomingDates.map((date) => (
+                <div key={date} className={styles.dateGroup}>
+                  <div className={styles.dateBadge}>{formatSectionDate(date)}</div>
+                  <TaskList tasks={upcomingByDate[date]} onToggle={handleToggle} />
+                </div>
+              ))}
+            </section>
+          )}
+        </>
       )}
 
       <FAB href="/tasks/new" label="할 일 추가" />
