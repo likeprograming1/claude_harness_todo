@@ -98,7 +98,7 @@ make typecheck   # mypy app/
 | 3 | Domain models & schemas (Task, Category, Milestone) | ✅ |
 | 4 | Repositories (base + task / category / milestone) | ✅ |
 | 5 | Services (business logic, validation) + unit tests | ✅ |
-| 6 | API Endpoints + router registration + integration tests | 🔲 |
+| 6 | API Endpoints + router registration + integration tests | ✅ |
 | 7 | Full test suite (conftest, task / category / stats) | 🔲 |
 | 8 | Docker & local dev (docker-compose, Makefile) | ✅ |
 
