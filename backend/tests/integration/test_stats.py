@@ -81,3 +81,54 @@ async def test_insights_insufficient_data(ac: AsyncClient) -> None:
     assert data["peak_start"] is None
     assert data["peak_end"] is None
     assert "부족" in data["message"]
+
+
+async def test_insights_with_enough_data(ac: AsyncClient) -> None:
+    # Complete 5 tasks so completed_at is populated
+    for i in range(5):
+        r = await ac.post("/api/v1/tasks", json={"title": f"Insight task {i}"})
+        await ac.patch(f"/api/v1/tasks/{r.json()['task_id']}/done")
+
+    resp = await ac.get("/api/v1/stats/insights")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["peak_start"] is not None
+    assert data["peak_end"] is not None
+    assert "~" in data["message"]
+
+
+# ── dashboard edge cases ──────────────────────────────────────────────────────
+
+async def test_dashboard_priority_tasks_max_3(ac: AsyncClient) -> None:
+    # Create 5 undone tasks today — priority_tasks must return at most 3
+    for i in range(5):
+        await ac.post("/api/v1/tasks", json={"title": f"PT {i}", "due_date": TODAY, "priority": "high"})
+
+    resp = await ac.get("/api/v1/stats/dashboard")
+    assert resp.status_code == 200
+    assert len(resp.json()["priority_tasks"]) <= 3
+
+
+async def test_dashboard_done_tasks_excluded_from_priority(ac: AsyncClient) -> None:
+    r1 = await ac.post("/api/v1/tasks", json={"title": "Done today", "due_date": TODAY})
+    await ac.patch(f"/api/v1/tasks/{r1.json()['task_id']}/done")
+    r2 = await ac.post("/api/v1/tasks", json={"title": "Undone today", "due_date": TODAY})
+
+    resp = await ac.get("/api/v1/stats/dashboard")
+    data = resp.json()
+    priority_ids = [t["task_id"] for t in data["priority_tasks"]]
+    assert r1.json()["task_id"] not in priority_ids
+    assert r2.json()["task_id"] in priority_ids
+
+
+async def test_dashboard_upcoming_excludes_past(ac: AsyncClient) -> None:
+    from datetime import date, timedelta
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    tomorrow = (date.today() + timedelta(days=1)).isoformat()
+
+    await ac.post("/api/v1/tasks", json={"title": "Past task", "due_date": yesterday})
+    r_future = await ac.post("/api/v1/tasks", json={"title": "Future task", "due_date": tomorrow})
+
+    resp = await ac.get("/api/v1/stats/dashboard")
+    upcoming_ids = [t["task_id"] for t in resp.json()["upcoming"]]
+    assert r_future.json()["task_id"] in upcoming_ids

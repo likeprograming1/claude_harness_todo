@@ -169,3 +169,65 @@ async def test_toggle_done_back_to_undone(ac: AsyncClient) -> None:
 async def test_toggle_done_not_found(ac: AsyncClient) -> None:
     resp = await ac.patch("/api/v1/tasks/missing_id/done")
     assert resp.status_code == 404
+
+
+# ── domain edge cases ─────────────────────────────────────────────────────────
+
+async def test_create_task_custom_task_id(ac: AsyncClient) -> None:
+    resp = await ac.post("/api/v1/tasks", json={"title": "Custom ID", "task_id": "my-custom-001"})
+    assert resp.status_code == 201
+    assert resp.json()["task_id"] == "my-custom-001"
+
+
+async def test_create_task_duplicate_task_id(ac: AsyncClient) -> None:
+    await ac.post("/api/v1/tasks", json={"title": "First", "task_id": "dup-001"})
+    resp = await ac.post("/api/v1/tasks", json={"title": "Second", "task_id": "dup-001"})
+    assert resp.status_code == 409
+
+
+async def test_create_task_invalid_date_format(ac: AsyncClient) -> None:
+    resp = await ac.post("/api/v1/tasks", json={"title": "T", "due_date": "2025/12/31"})
+    assert resp.status_code == 422
+
+
+async def test_create_task_invalid_time_format(ac: AsyncClient) -> None:
+    resp = await ac.post("/api/v1/tasks", json={"title": "T", "due_date": "2025-12-31", "due_time": "9:00"})
+    assert resp.status_code == 422
+
+
+async def test_create_task_invalid_priority(ac: AsyncClient) -> None:
+    resp = await ac.post("/api/v1/tasks", json={"title": "T", "priority": "urgent"})
+    assert resp.status_code == 422
+
+
+async def test_list_tasks_filter_by_category(ac: AsyncClient) -> None:
+    await ac.post("/api/v1/tasks", json={"title": "Work task", "category_id": "cat_work"})
+    await ac.post("/api/v1/tasks", json={"title": "No category task"})
+    resp = await ac.get("/api/v1/tasks?category_id=cat_work")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) >= 1
+    assert all(t["category_id"] == "cat_work" for t in tasks)
+
+
+async def test_update_task_clears_notes(ac: AsyncClient) -> None:
+    create_resp = await ac.post("/api/v1/tasks", json={"title": "With notes", "notes": "original"})
+    task_id = create_resp.json()["task_id"]
+    resp = await ac.put(f"/api/v1/tasks/{task_id}", json={"notes": None})
+    assert resp.status_code == 200
+    assert resp.json()["notes"] is None
+
+
+async def test_toggle_done_sets_completed_at(ac: AsyncClient) -> None:
+    create_resp = await ac.post("/api/v1/tasks", json={"title": "Track time"})
+    task_id = create_resp.json()["task_id"]
+    resp = await ac.patch(f"/api/v1/tasks/{task_id}/done")
+    assert resp.json()["completed_at"] is not None
+
+
+async def test_toggle_undone_clears_completed_at(ac: AsyncClient) -> None:
+    create_resp = await ac.post("/api/v1/tasks", json={"title": "Clear time"})
+    task_id = create_resp.json()["task_id"]
+    await ac.patch(f"/api/v1/tasks/{task_id}/done")   # done → completed_at set
+    resp = await ac.patch(f"/api/v1/tasks/{task_id}/done")  # undone → cleared
+    assert resp.json()["completed_at"] is None
